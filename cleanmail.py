@@ -1,6 +1,6 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
-from imap_tools import MailBox
+from imap_tools import MailBox, consts, A
 
 from mysecrets import EMAIL_ADDRESS, PASSWORD, SERVER
 
@@ -31,17 +31,17 @@ uids_to_delete = list()
 
 # Get date, subject and body len of all emails from INBOX folder
 with MailBox(SERVER).login(EMAIL_ADDRESS, PASSWORD) as mailbox:
-    for msg in mailbox.fetch(headers_only=True):
+    for msg in mailbox.fetch(A(date_gte=date(2023, 3, 1)), headers_only=True):
         if msg.from_ in delete_unseen_after_2_weeks\
             and msg.date.date() <= date_two_weeks_ago\
-            and '\\Flagged' not in msg.flags:
+            and consts.MailMessageFlags.FLAGGED  not in msg.flags:
 
             uids_to_delete.append(msg.uid)
 
         elif msg.from_ in delete_seen_after_2_days\
             and msg.date.date() <= date_two_days_ago\
-            and '\\Flagged' not in msg.flags\
-            and '\\Seen' in msg.flags:
+            and consts.MailMessageFlags.FLAGGED not in msg.flags\
+            and consts.MailMessageFlags.SEEN in msg.flags:
 
             uids_to_delete.append(msg.uid)
     
