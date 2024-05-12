@@ -1,5 +1,5 @@
 import re
-from datetime import date
+from datetime import date, timedelta
 
 from imap_tools import A, MailBox, consts
 
@@ -40,10 +40,11 @@ with open('auto-flag-mails.list', 'r') as reader:
 
 
 to_auto_flag = list()
+start_date = date.today() - timedelta(days=180)
 
 # Get date, subject and body len of all emails from INBOX folder
 with MailBox(SERVER).login(EMAIL_ADDRESS, PASSWORD) as mailbox:
-    for msg in mailbox.fetch(A(date_gte=date(2023, 5, 1)), headers_only=True):
+    for msg in mailbox.fetch(A(date_gte=start_date), headers_only=True):
         if msg.from_ in auto_flags:
             auto_flag:AutoFlag = auto_flags[msg.from_]
             subject_pattern = auto_flag.subject_pattern

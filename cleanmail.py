@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, UTC
 
 from imap_tools import MailBox, consts, A
 
@@ -8,8 +8,8 @@ from mysecrets import EMAIL_ADDRESS, PASSWORD, SERVER
 # PASSWORD = '<from mysecret.py>'
 # SERVER = '<from mysecret.py>'
 
-date_two_days_ago = datetime.utcnow().date() - timedelta(days=2)
-date_two_weeks_ago = datetime.utcnow().date() - timedelta(days=14)
+date_two_days_ago = datetime.now(UTC).date() - timedelta(days=2)
+date_two_weeks_ago = datetime.now(UTC).date() - timedelta(days=14)
 
 delete_unseen_after_2_weeks = {}
 
@@ -28,10 +28,11 @@ with open('delete-seen-after-two-days.list', 'r') as reader:
             delete_seen_after_2_days[line] = 'dummy'
 
 uids_to_delete = list()
+start_date = date.today() - timedelta(days=180)
 
 # Get date, subject and body len of all emails from INBOX folder
 with MailBox(SERVER).login(EMAIL_ADDRESS, PASSWORD) as mailbox:
-    for msg in mailbox.fetch(A(date_gte=date(2023, 3, 1)), headers_only=True):
+    for msg in mailbox.fetch(A(date_gte=start_date), headers_only=True):
         if msg.from_ in delete_unseen_after_2_weeks\
             and msg.date.date() <= date_two_weeks_ago\
             and consts.MailMessageFlags.FLAGGED  not in msg.flags:
