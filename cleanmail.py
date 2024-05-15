@@ -46,5 +46,5 @@ with MailBox(SERVER).login(EMAIL_ADDRESS, PASSWORD) as mailbox:
 
             uids_to_delete.append(msg.uid)
     
-    print("Deleting {} mails.".format(len(uids_to_delete)))
-    mailbox.delete(uids_to_delete)
+    print("Moving {} mails to Trash.".format(len(uids_to_delete)))
+    mailbox.move(uids_to_delete, 'Trash')
